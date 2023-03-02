@@ -4,16 +4,26 @@ const { response } = require("express");
 const { generateJWT } = require("../helpers/jwt");
 
 const getUsuarios = async (req, resp) => {
-  const usuarios = await Usuario.find({}, "nombre email google role");
+  const from = Number(req.query.from) || 0;
+  /* const usuarios = await Usuario.find({}, "nombre email google role")
+    .skip(from)
+    .limit(5);
+
+  const total = await Usuario.count(); */
+
+  const [usuarios, total] = await Promise.all([
+    Usuario.find({}, "nombre email role google imagen").skip(from).limit(5),
+    Usuario.count(),
+  ]);
   resp.status(200).json({
     ok: true,
     usuarios: [
       {
-        id: "123",
         usuarios,
       },
     ],
     uid: req.uid,
+    total,
   });
 };
 
