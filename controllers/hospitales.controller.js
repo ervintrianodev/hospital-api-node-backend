@@ -39,17 +39,68 @@ const saveHospital = async (req, resp = response) => {
   }
 };
 
-const updateHospital = (req, resp = response) => {
-  resp.status(200).json({
-    ok: true,
-    msg: "Acutalizar hospital",
-  });
+const updateHospital = async (req, resp = response) => {
+  const hospitalId = req.params.id;
+  const uid = req.body.uid;
+  try {
+    const hospitalDB = Hospital.findById(hospitalId);
+    if (!hospitalDB) {
+      return resp.status(404).json({
+        ok: true,
+        msg: "El hospital no se encontro en la base de datos",
+      });
+    }
+
+    const cambiosHospital = {
+      ...req.body,
+      usuario: uid,
+    };
+    const hospitalActualizado = await Hospital.findByIdAndUpdate(
+      hospitalId,
+      cambiosHospital,
+      { new: true }
+    );
+    resp.status(200).json({
+      ok: true,
+      hospitalId,
+      msg: "El hospital ha sido actualizado con exito",
+      hospital: hospitalActualizado,
+    });
+  } catch (error) {
+    console.log(
+      `Hubo algunos errores al acutalizar el hospital porque ${error}`
+    );
+    resp.status(400).json({
+      ok: false,
+      msg: `Hubo errores al actualizar el hospital porque ${error}`,
+    });
+  }
 };
-const deleteHospital = (req, resp = response) => {
-  resp.status(200).json({
-    ok: true,
-    msg: "Eliminar Hospital",
-  });
+const deleteHospital = async (req, resp = response) => {
+  const hospitalId = req.params.id;
+  try {
+    const hospitalDB = Hospital.findById(hospitalId);
+    if (!hospitalDB) {
+      return resp.status(404).json({
+        ok: false,
+        msg: "El hospital no esta en la base de datos",
+      });
+    }
+    const hospitalEliminado = await Hospital.findByIdAndDelete(hospitalId);
+    resp.status(200).json({
+      ok: true,
+      msg: "El hospital ha sido eliminado con exito",
+      hospital: hospitalEliminado,
+    });
+  } catch (error) {
+    console.log(
+      `Hubo algunos errores al eliminar el hospital porque: ${error}`
+    );
+    resp.json({
+      ok: false,
+      msg: `Hubo algunos errores al eliminar el hospital porque ${error}`,
+    });
+  }
 };
 
 module.exports = {

@@ -1,8 +1,14 @@
-//path: '/loging'
+//path: '/login'
 const { Router } = require("express");
 const { check } = require("express-validator");
-const { login, loginWithGoogle } = require("../controllers/auth.controller");
+const {
+  login,
+  loginWithGoogle,
+  revalidateToken,
+} = require("../controllers/auth.controller");
+const { generateJWT } = require("../helpers/jwt");
 const { validarCampos } = require("../middlewares/validar-campos");
+const { validateJWT } = require("../middlewares/validar/jwt");
 
 const router = Router();
 
@@ -22,4 +28,5 @@ router.post(
   loginWithGoogle
 );
 
+router.get("/revalidate-token", validateJWT, revalidateToken);
 module.exports = router;

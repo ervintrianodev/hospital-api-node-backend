@@ -74,7 +74,26 @@ const loginWithGoogle = async (req, res = response) => {
   }
 };
 
+const revalidateToken = async (req, res = response) => {
+  const uid = req.uid;
+  //Generar el token
+  try {
+    const token = await generateJWT(uid);
+    res.status(400).json({
+      ok: true,
+      uid,
+      token,
+    });
+  } catch (error) {
+    console.log(`Hubo errores al renovar el token porque ${error}`);
+    res.status(400).json({
+      ok: false,
+      msg: `Hubo algunos errores al revalidar el token proque ${error}`,
+    });
+  }
+};
 module.exports = {
   login,
   loginWithGoogle,
+  revalidateToken,
 };

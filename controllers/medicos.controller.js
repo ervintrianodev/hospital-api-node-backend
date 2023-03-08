@@ -46,18 +46,64 @@ const saveMedico = async (req, resp = response) => {
   }
 };
 
-const updateMedico = (req, resp = response) => {
-  resp.status(200).json({
-    ok: false,
-    msg: "Updating Medico",
-  });
+const updateMedico = async (req, resp = response) => {
+  const medicoId = req.params.id;
+  const uid = req.body.uid;
+  try {
+    const medicoDB = Medico.findById(medicoId);
+    if (!medicoDB) {
+      return resp.status(404).json({
+        ok: false,
+        msg: "El medico no se encuentra en la base de datos",
+      });
+    }
+    const cambiosMedicos = {
+      ...req.body,
+      usuario: uid,
+    };
+    const medicoActualizado = await Medico.findByIdAndUpdate(
+      medicoId,
+      cambiosMedicos,
+      { new: true }
+    );
+    resp.status(200).json({
+      ok: false,
+      msg: "El medico ha sido actualizado satisfacroriamente",
+      medico: medicoActualizado,
+    });
+  } catch (error) {
+    console.log(`Hubo algunos errores al actualizar al medico porque ${error}`);
+    resp.status(400).json({
+      ok: false,
+      msg: `Hubo algunos errores al actualizar al medico porque ${error}`,
+    });
+  }
 };
 
-const deleteMedico = (req, resp = response) => {
-  resp.status(200).json({
-    ok: false,
-    msg: "Deleting Medico",
-  });
+const deleteMedico = async (req, resp = response) => {
+  const medicoId = req.params.id;
+  try {
+    const medicoDB = Medico.findById(medicoId);
+    if (!medicoDB) {
+      return resp.status(400).json({
+        ok: false,
+        msg: "El medico no existe en nuestra base de datos",
+      });
+    }
+
+    const medicoEliminado = await Medico.findByIdAndDelete(medicoId);
+    resp.status(200).json({
+      ok: false,
+      msg: "El medico ha sido eliminado satisfactoriamente",
+      medico: medicoEliminado,
+    });
+  } catch (error) {
+    console.log(`Hubo algunos errores al eliminar al medico porque ${error}`);
+    resp.status(400).json({
+      ok: false,
+      msg: `Hubo algunos errores al eliminar al medico porque ${error}`,
+    });
+  }
 };
 
 module.exports = {
